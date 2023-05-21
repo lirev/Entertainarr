@@ -16,8 +16,10 @@ from pyarr import SonarrAPI as sapi
 from tmdbv3api import TMDb, Movie as M
 import configparser
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+config_file = os.path.join(script_dir, 'config.ini')
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(config_file)
 
 #discord
 TOKEN = config['API']['TOKEN']
