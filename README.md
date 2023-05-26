@@ -3,7 +3,7 @@ This is a simple script used to create a discord bot for managing you media file
 
 Setup is not plug and play, requires install and knowledge of things like sonarr, radarr, jackett, and plex. requires multiple api keys.
 
-Im sure a few things could be changed but it currently works how i need it to and havent touched it much. 
+Im sure a few things could be changed but it currently works how i need it to and havent touched it much. I welcome tips and reccomendations, I am not a professional. 
 
 Setup:
   1. record all credentials/keys into config.ini
