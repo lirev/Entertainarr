@@ -1,7 +1,7 @@
 # Entertainarr
-This is a simple script used to create a discord bot for managing your media files through radarr, sonarr, and plex.
+This is a simple script used to create a discord bot for adding titles to radarr, sonarr, and plex.
 
-Setup is not plug and play, requires install and knowledge of things like sonarr, radarr, jackett, and plex. Requires multiple api keys.
+Setup is some-what plug and play, requires install and knowledge of things like sonarr, radarr, jackett, and plex. Requires multiple api keys.
 
 Im sure a few things could be changed, but it currently works how i need it to and havent touched it much. I welcome tips and reccomendations, I am not a professional. 
 
