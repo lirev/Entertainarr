@@ -1,27 +1,27 @@
 # Entertainarr
-This is a simple script used to create a discord bot for managing you media files through radarr, sonarr, and plex.
+This is a simple script used to create a discord bot for managing your media files through radarr, sonarr, and plex.
 
-Setup is not plug and play, requires install and knowledge of things like sonarr, radarr, jackett, and plex. requires multiple api keys.
+Setup is not plug and play, requires install and knowledge of things like sonarr, radarr, jackett, and plex. Requires multiple api keys.
 
-Im sure a few things could be changed but it currently works how i need it to and havent touched it much. I welcome tips and reccomendations, I am not a professional. 
+Im sure a few things could be changed, but it currently works how i need it to and havent touched it much. I welcome tips and reccomendations, I am not a professional. 
 
 Setup:
   1. record all credentials/keys into config.ini
   
-  2. Install sonarr and radarr on the main server. i used a windows 10 install nothing fancy. record your IP address for the server and Api key for both sonarr and radarr.
+  2. Install sonarr and radarr on the main server. I used a windows 10 install, nothing fancy. Record your IP address for the server and API key for both sonarr and radarr.
   
-  3.(optional) Setup jackett for sonarr and radarr, i will not explain this. 
+  3. (optional) Setup jackett for sonarr and radarr, I will not explain this. 
   
   4. Create a discord bot through the discord developer website, give your bot permissions to send and read messages. Make sure to check the box for "MESSAGE CONTENT INTENT".
   
-  5. I will not explain the install for a plex server, record your username, password and the name given to the plex server, something like HOME-SERVER. install on same device as 
+  5. I will not explain the install for a plex server, record your username, password and the name given to the plex server. Something like HOME-SERVER, install on same device as 
  radarr and sonarr
  
   6. Get a TMDB api key for searching for titles. 
   
-  7. Sonarr and radarr should be setup to have their own file locations, for example Z:/entertainment/shows and Z:/entertainment/movies. if using a download client for radarr and sonarr, create a seperate tag in your client profile to seperate files. for example radarr client gets the catagory "radarr".
+  7. Sonarr and radarr should be setup to have their own file locations, for example Z:/entertainment/shows and Z:/entertainment/movies. If using a download client for radarr and sonarr, create a seperate tag in your client profile to seperate files. For example radarr client gets the catagory "radarr".
   
-  8. the discord channel id you want the bot to send messages to, if you want the bot in multiple servers a few lines will need to be replicated in the code.
+  8. The discord channel id you want the bot to send messages to, If you want the bot in multiple servers a few lines will need to be replicated in the code.
 
   9. If all goes well all you need to do is run the python script and the bot should appear and be ready for testing. I have the bot run from a linux server as a service. an auto start can be created for windows if you want all functions of this to run on 1 device.  
   
