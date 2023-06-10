@@ -1,9 +1,3 @@
-#to-do/add
-#que command to see why title isnt ready
-        #need to login and get cookie even though im using api?
-#remove wrong titles
-
-
 import discord
 import os
 from discord.ext import commands, tasks
