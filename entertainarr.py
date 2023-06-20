@@ -1,15 +1,16 @@
 import discord
-import os
 from discord.ext import commands, tasks
-import ctxcore
-import asyncio
-import json
 from plexapi.myplex import MyPlexAccount
 from arrapi import RadarrAPI, SonarrAPI
 from pyarr import SonarrAPI as sapi
 from tmdbv3api import TMDb, Movie as M
+import os
+import ctxcore
+import asyncio
+import json
 import configparser
 
+#sets absolute path of python script and reads the config.ini file for keys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(script_dir, 'config.ini')
 config = configparser.ConfigParser()
@@ -35,7 +36,6 @@ plexPass = config['API']['plexPass']
 plexServer = config['API']['plexServer']
 account = MyPlexAccount(plexUser, plexPass)
 plex = account.resource(plexServer).connect() 
-print(host_url)
 
 quality_profile = config['API']['quality_profile']
 language = config['API']['language']
@@ -47,7 +47,6 @@ tmdb_url ='https://image.tmdb.org/t/p/w500/'
 tmdb_api = config['API']['tmdb_api']
 tmdb.api_key=tmdb_api
 tmdb.language = 'en'
-#tmdb.debug = True
 channel_id = config['API']['channel_id']
 
 #discord intents, manages bot "permissions"
@@ -70,13 +69,14 @@ async def recently():
     channel1 = bot.get_channel(channel_id)
     # check if the first movie is different from the last movie
     if new_movie != last_movie:
-        # run action here
         last_movie = new_movie
         movie_string = str(new_movie)
         movie_title = movie_string.split(':')[2]
         await bot.wait_until_ready()
+        #send title to discord channel
         if movie_title == 0:
             await channel1.send(f"{movie_title}is now available on plex.")
+        #send direct message to user who requested the title
         if user != None:
             await user.send(f"{new_movie} is now available on Plex.")
             user = None
@@ -87,11 +87,13 @@ async def recently():
 #basic fucntion for calling bot with !m, !M, !Movie
 @bot.command(aliases=['m','M','Movie'])
 async def movies(ctx,*, title, result_number: int = 1):
+    #assign user to a variable
     global user
     user = ctx.author
+    #checks if the user entered a result number
     if result_number > 10 or result_number < 1:
         await ctx.send("Invalid result number, please enter a number within the range of search results.")        
-    await ctx.send(f"Searching Radarr for {title}.")
+    await ctx.send(f"Searching Radarr for {title} with increment {result_number}")
     search = m.search(title)
     i = 1
     for res in search:
