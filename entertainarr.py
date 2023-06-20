@@ -86,13 +86,13 @@ async def recently():
     
 #basic fucntion for calling bot with !m, !M, !Movie
 @bot.command(aliases=['m','M','Movie'])
-async def movies(ctx,*, title, result_number: int = 1):
+async def movies(ctx,*, title):
     #assign user to a variable
     global user
     user = ctx.author
     #checks if the user entered a result number
     # Split input string into title and increment number
-    parts = input_str.split(':')
+    parts = title.split(':')
     title = parts[0].strip()
     increment_str = parts[1].strip() if len(parts) > 1 else '1'
     result_number = int(increment_str)
