@@ -97,8 +97,11 @@ async def movies(ctx,*, title):
     increment_str = parts[1].strip() if len(parts) > 1 else '1'
     result_number = int(increment_str)
     if result_number > 10 or result_number < 1:
-        await ctx.send("Invalid result number, please enter a number within the range of search results.")        
-    await ctx.send(f"Searching Radarr for {title} with increment {result_number}")
+        await ctx.send("Invalid result number, please enter a number within the range of search results.")
+    if result_number == 1:
+        await ctx.send(f"Searching Radarr for {title}.")       
+    else:
+        await ctx.send(f"Searching Radarr for {title} with increment {result_number}.")
     search = m.search(title)
     i = 1
     for res in search:
