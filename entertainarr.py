@@ -41,6 +41,7 @@ plex = account.resource(plexServer).connect()
 
 quality_profile = config['API']['quality_profile']
 language = config['API']['language']
+drive_letter= config['API']['drive_letter']
 
 #tdmb
 m = M()
@@ -170,6 +171,27 @@ async def bothelp(ctx):
         await ctx.send("Add any movie or show by sending a command!")
         await ctx.send("To add a movie use !m or !movie, if result is not as expected, iterate through search with a number I.E. \"!m thirteen ghosts 2\", this will use the second option returned and so on. bot will direct message when movie is available on plex.")
         await ctx.send("to add a show use !s or !show. iteration needs to be added. bot will direct message when show is available on plex.") 
+
+@bot.command(aliases=['d','free'])
+async def disk_space(ctx):
+    try:
+        disk_space_info = sonarr2.get_disk_space()
+
+        i_drive_space = None
+        for disk in disk_space_info:
+            if disk["path"] == drive_letter:
+                i_drive_space = disk
+                break
+
+        if i_drive_space:
+            free_space_gb = round(i_drive_space["freeSpace"] / (1024 ** 3), 2)
+            total_space_gb = round(i_drive_space["totalSpace"] / (1024 ** 3), 2)
+            response = f"Available Disk Space for: {drive_letter} \nFree: {free_space_gb} GB\nTotal: {total_space_gb} GB"
+            await ctx.send(response)
+        else:
+            await ctx.send("Disk I:/ not found in Sonarr disk space information.")
+    except Exception as e:
+        await ctx.send(f"Failed to retrieve disk space: {str(e)}")
         
 @bot.command(aliases=['n', 'new'])
 async def show_new_movies(ctx):
