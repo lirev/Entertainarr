@@ -10,6 +10,7 @@ import datetime
 import time
 import asyncio
 import requests
+import traceback
 
 #discord intents, manages bot "permissions"
 intents = discord.Intents.default()  # or .all() if you ticked all, that is easier
@@ -54,8 +55,7 @@ tmdb.api_key=tmdb_api
 tmdb.language = 'en'
 channel_id = config['API']['channel_id']
 
-
-
+quality_profile = config['API']["quality_profile"]
 
 # get recently added movies
 @tasks.loop(minutes=5.0)
@@ -124,7 +124,10 @@ def setup(bot):
                 try:
                     radarr.add_movie(tmdb_id=list, quality_profile=quality_profile, root_folder=movie_path)
                     await ctx.send(f"Added movie to radarr library: {movie}")
-                except:
+                except Exception as e:
+                    # Log or print the error details
+                    error_details = traceback.format_exc()
                     await ctx.send(f"Failed to add {movie}. Maybe its already in the radarr library? \nIf no results, try changing your search term.")
+                    print(f"{str(e)}\n\n{error_details}")
             else:
                 await ctx.send("Cancelled.")
