@@ -1,0 +1,8 @@
+arrapi==1.4.13
+ctxcore==0.2.0
+discord.py==2.4.0
+PlexAPI==4.15.16
+pyarr==5.2.0
+Requests==2.32.3
+tmdbv3api==1.9.0
+wakeonlan==3.1.0
