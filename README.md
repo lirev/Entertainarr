@@ -30,5 +30,6 @@ Once bot setup is complete, a user can search the radarr or sonarr api for title
 
 
 Use: enter "!m the hunger games" in the discord channel where the bot has access and follow the prompts. 
-![image](https://github.com/lirev/Entertainarr/assets/97287390/bb469ae8-941a-4e67-9ab8-72666f57f352)
+![241129845-bb469ae8-941a-4e67-9ab8-72666f57f352](https://github.com/user-attachments/assets/761485c1-7b0d-4517-9651-08c4f3718340)
+
 
