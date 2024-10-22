@@ -1,13 +1,12 @@
 import discord
 from plexapi.myplex import MyPlexAccount
 from discord.ext import commands, tasks
-from arrapi import RadarrAPI, SonarrAPI
-from pyarr import SonarrAPI as sapi
-from tmdbv3api import TMDb, TV, Movie as M
+from arrapi import RadarrAPI
 import configparser
 import os
 import datetime
 import time
+import aiohttp
 import asyncio
 import requests
 import traceback
@@ -20,6 +19,7 @@ bot = discord.ext.commands.Bot(command_prefix="!", intents=intents)  # intializa
 last_movie = None
 user = None
 
+error_id = config['API']['error_id']
 
 # Load the configuration file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,30 +32,80 @@ host_url = config['API']['host_url']
 api_key = config['API']['api_key']
 radarr = RadarrAPI(host_url, api_key)
 
-#sonarr
-sapi_key = config['API']['sapi_key']
-shost_url = config['API']['shost_url']
-sonarr = SonarrAPI(shost_url, sapi_key)
-sonarr2 = sapi(shost_url, sapi_key)
-
 #plex
 plexUser = config['API']['plexUser']
 plexPass = config['API']['plexPass']
 plexServer = config['API']['plexServer']
 account = MyPlexAccount(plexUser, plexPass)
 plex = account.resource(plexServer).connect() 
-
-#tdmb
-m = M()
-tmdb=TMDb()
-tmdb_url ='https://image.tmdb.org/t/p/w500/'
-tmdb_api = config['API']['tmdb_api']
-tmdb_Rapi = config['API']['tmdb_Rapi']
-tmdb.api_key=tmdb_api
-tmdb.language = 'en'
 channel_id = config['API']['channel_id']
-
 quality_profile = config['API']["quality_profile"]
+rapi_key = config['API']['tmdb_Rapi']
+
+def setup(bot):
+    @bot.command(aliases=['m', 'M', 'Movie'])
+    async def movies(ctx, *, title):
+        global user
+        user = ctx.author
+        # Split input string into title and increment number
+        parts = title.split('#')
+        title = parts[0].strip()
+        increment_str = parts[1].strip() if len(parts) > 1 else '1'
+        result_number = int(increment_str)
+        if result_number > 10 or result_number < 1:
+            await ctx.send("Invalid result number, please enter a number within the range of search results.")
+            return
+        if result_number == 1:
+            await ctx.send(f"Searching Radarr for {title}.")       
+        else:
+            await ctx.send(f"Searching Radarr for {title} with increment {result_number}.")
+
+        try:
+            search_results = radarr.search_movies(title)
+            if not search_results:
+                await ctx.send("No movies found.")
+                return
+            # Get the specific result based on the result number
+            movie = search_results[result_number - 1]
+            url = f"https://api.themoviedb.org/3/movie/{movie.tmdbId}/images"
+
+            headers = {
+                "accept": "application/json",
+                "Authorization": f"Bearer {rapi_key}"  # Replace with your actual token
+            }
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        posters = data.get('posters', [])
+                        if posters:
+                            for poster in posters:
+                                poster_path = poster.get('file_path')
+                                full_poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
+                                await ctx.send(full_poster_url)
+                                break
+                        else:
+                            await ctx.send("No posters found.")
+                    else:
+                        print(f"Error: {response.status} - {await response.text()}")
+                        await ctx.send("Failed to fetch movie poster.")
+            movie_path = config['API']['movie_path']
+            await ctx.send("Is this correct? Just type yes or no.")
+
+            def check(m):
+                return m.content.lower() in ("yes", "no") and m.channel == ctx.channel
+            msg = await bot.wait_for("message", check=check, timeout=30)
+            if msg.content.lower() == "yes":
+                try:
+                    radarr.add_movie(tmdb_id=movie.tmdbId, quality_profile=quality_profile, root_folder=movie_path)
+                    await ctx.send(f"Added movie to Radarr library: {movie.title}")
+                except Exception as e:
+                    await ctx.send(f"Failed to add {movie.title}. Maybe it's already in the Radarr library? \nIf no results, try changing your search term.")
+                    await error_message(e, bot)
+            else:
+                await ctx.send("Cancelled.")
+        except Exception as e:
+            await error_message(e, bot)
 
 # get recently added movies
 @tasks.loop(minutes=5.0)
@@ -82,52 +132,12 @@ async def recently():
             user = None
     await asyncio.sleep(60)
 
-def setup(bot):
-    #basic fucntion for calling bot with !m, !M, !Movie
-    @bot.command(aliases=['m','M','Movie'])
-    async def movies(ctx,*, title):
-        #assign user to a variable
-        global user
-        user = ctx.author
-        #checks if the user entered a result number
-        # Split input string into title and increment number
-        parts = title.split(':')
-        title = parts[0].strip()
-        increment_str = parts[1].strip() if len(parts) > 1 else '1'
-        result_number = int(increment_str)
-        if result_number > 10 or result_number < 1:
-            await ctx.send("Invalid result number, please enter a number within the range of search results.")
-        if result_number == 1:
-            await ctx.send(f"Searching Radarr for {title}.")       
-        else:
-            await ctx.send(f"Searching Radarr for {title} with increment {result_number}.")
-        search = m.search(title)
-        i = 1
-        for res in search:
-            if i == result_number:
-                list = res.id
-                poster = tmdb_url+res.poster_path
-                break
-            i += 1
-        movie = radarr.get_movie(tmdb_id=list)
-        await ctx.send(poster)
-        movie_path = config['API']['movie_path']
-        await ctx.send("Is this correct? Just type yes or no.")
-        def check(m):
-            return m.content.lower() in ("yes", "no") and m.channel == ctx.channel
-        try:
-            msg = await bot.wait_for("message", check=check, timeout=30)
-        except asyncio.TimeoutError:
-            await ctx.send("Timed out, please try again.")
-        else:
-            if msg.content.lower() == "yes":
-                try:
-                    radarr.add_movie(tmdb_id=list, quality_profile=quality_profile, root_folder=movie_path)
-                    await ctx.send(f"Added movie to radarr library: {movie}")
-                except Exception as e:
-                    # Log or print the error details
-                    error_details = traceback.format_exc()
-                    await ctx.send(f"Failed to add {movie}. Maybe its already in the radarr library? \nIf no results, try changing your search term.")
-                    print(f"{str(e)}\n\n{error_details}")
-            else:
-                await ctx.send("Cancelled.")
+
+async def error_message(e, bot):
+    try:
+        error_channel = await bot.fetch_channel(error_id)
+        print(error_id)
+        await error_channel.send(f"An exception occurred: \n{str(e)}")
+        print("Error message sent successfully.")
+    except Exception as send_err:
+        print(f"Failed to send the error message: {str(send_err)}")
