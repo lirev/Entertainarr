@@ -19,8 +19,6 @@ bot = discord.ext.commands.Bot(command_prefix="!", intents=intents)  # intializa
 last_movie = None
 user = None
 
-error_id = config['API']['error_id']
-
 # Load the configuration file
 script_dir = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(script_dir, 'config.ini')
@@ -41,7 +39,7 @@ plex = account.resource(plexServer).connect()
 channel_id = config['API']['channel_id']
 quality_profile = config['API']["quality_profile"]
 rapi_key = config['API']['tmdb_Rapi']
-
+error_id = config['API']['error_id']
 def setup(bot):
     @bot.command(aliases=['m', 'M', 'Movie'])
     async def movies(ctx, *, title):

@@ -45,6 +45,8 @@ tmdb.api_key=tmdb_api
 tmdb.language = 'en'
 channel_id = config['API']['channel_id']
 
+quality_profile = config['API']['quality_profile']
+language = config['API']['language']
 
 def setup(bot):
     #start of tv shows
